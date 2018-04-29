@@ -1,8 +1,8 @@
 package com.publica.microservicesanalyzer.controller;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,6 +14,12 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,17 +29,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.publica.microservicesanalyzer.model.Notification;
+import com.publica.microservicesanalyzer.model.NotificationConfiguration;
+import com.publica.microservicesanalyzer.pojo.NotificationConfigPojo;
+import com.publica.microservicesanalyzer.pojo.NotificationSentPojo;
 import com.publica.microservicesanalyzer.pojo.RegisterPojoToken;
+import com.publica.microservicesanalyzer.repo.NotificationConfigurationRepository;
+import com.publica.microservicesanalyzer.repo.NotificationRepository;
+import com.publica.microservicesanalyzer.service.NotificationService;
 
 @RestController
 @RequestMapping("/notification")
 public class NotificationController {
-
-	private Map<String, String> devices = new HashMap<>();
+	
+	@Autowired private NotificationService notificationService;
+	@Autowired private NotificationConfigurationRepository notificationConfigRepo;
+	@Autowired private NotificationRepository notificationRepo;
 
 	@PostMapping("/register")
 	public ResponseEntity<?> register(@RequestBody RegisterPojoToken registerPojoToken) {
-		devices.put(registerPojoToken.getDevice_token(), registerPojoToken.getDevice_token());
+		notificationService.saveNotificationConfiguration(registerPojoToken.getDevice_token(), registerPojoToken.isOn());
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -56,7 +71,7 @@ public class NotificationController {
 
 		JSONObject message = new JSONObject();
 		try {
-			message.put("registration_ids", new JSONArray(devices.values()));
+			message.put("registration_ids", new JSONArray(notificationService.getDevices()));
 			message.put("priority", "high");
 
 			JSONObject notification = new JSONObject();
@@ -73,9 +88,40 @@ public class NotificationController {
 			System.out.println(response);
 			System.out.println(message);
 		} catch (JSONException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	@GetMapping("/config")
+	public ResponseEntity<List<NotificationConfigPojo>> getConfigPojos(){
+		return new ResponseEntity<List<NotificationConfigPojo>>(notificationConfigRepo.findAll().stream().map(t -> {
+			NotificationConfigPojo notificationConfigPojo = new NotificationConfigPojo();
+			notificationConfigPojo.setName(t.getNotificationClass());
+			notificationConfigPojo.setNotificationOn(t.isNotificationOn());
+			return notificationConfigPojo;
+		}).collect(Collectors.toList()), HttpStatus.OK);
+	}
+	
+	@PostMapping("/config")
+	public ResponseEntity<?> saveConfigs(@RequestBody List<NotificationConfigPojo> configs){
+		for (NotificationConfigPojo notificationConfigPojo : configs) {
+			NotificationConfiguration notificationConfiguration = notificationConfigRepo.findOne(notificationConfigPojo.getName());
+			notificationConfiguration.setNotificationOn(notificationConfigPojo.isNotificationOn());
+			notificationConfigRepo.save(notificationConfiguration);
+		}
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	@GetMapping("/sent")
+	public ResponseEntity<List<NotificationSentPojo>> notificationsSent(){
+		Page<Notification> notifications = notificationRepo.findAll(new PageRequest(0, 50, new Sort(new Order(Direction.DESC, "id"))));
+		return new ResponseEntity<>(notifications.getContent().stream().map(t -> {
+			NotificationSentPojo notificationSentPojo = new NotificationSentPojo();
+			notificationSentPojo.setDeviceIds(t.getDevices().stream().map(o -> o.getDeviceId()).collect(Collectors.joining(", ")));
+			notificationSentPojo.setMessage(t.getMessage());
+			notificationSentPojo.setDate(t.getDateSent());
+			return notificationSentPojo;
+		}).collect(Collectors.toList()), HttpStatus.OK);
 	}
 }
