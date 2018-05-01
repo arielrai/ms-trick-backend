@@ -5,6 +5,7 @@ cache:
 stages:
  - build
  - deploy
+ - openMr
 
 build:
  stage: build
@@ -21,11 +22,22 @@ deploy_staging:
  - apt-get update -qy
  - apt-get install -y ruby-dev
  - gem install dpl
- - dpl --provider=heroku --app=ms-trick-backend-staging --api-key=${HEROKU_API_KEY}
+ - dpl --provider=heroku --app=ms-trick-backend-staging --api-key=$HEROKU_API_KEY
  environment:
     name: staging
     url: https://ms-trick-backend-staging.herokuapp.com/
-  only:
- - ms-trick-backend
+ except:
+    - master
  tags:
  - docker
+
+Open Merge Request:
+  image: tmaier/gitlab-auto-merge-request:1
+  before_script: [] # We do not need any setup work, let's remove the global one (if any)
+  variables:
+    GIT_STRATEGY: none # We do not need a clone of the GIT repository to create a Merge Request
+  stage: openMr
+  except:
+    - master
+  script:
+    - merge-request.sh # The name of the script
