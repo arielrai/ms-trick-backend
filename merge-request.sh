@@ -19,7 +19,7 @@ TARGET_BRANCH="master"
 BODY="{
     \"id\": ${CI_PROJECT_ID},
     \"source_branch\": \"${CI_COMMIT_REF_NAME}\",
-    \"target_branch\": \"${TARGET_BRANCH}\",
+    \"target_branch\": \"master\",
     \"remove_source_branch\": true,
     \"title\": \"WIP: ${CI_COMMIT_REF_NAME}\",
     \"assignee_id\":\"${GITLAB_USER_ID}\"
