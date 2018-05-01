@@ -18,7 +18,7 @@ TARGET_BRANCH="master"
 # been closed
 BODY="{
     \"id\": ${CI_PROJECT_ID},
-    \"source_branch\": \"${CI_COMMIT_REF_NAME}\",
+    \"source_branch\": \"master\",
     \"target_branch\": \"master\",
     \"remove_source_branch\": true,
     \"title\": \"WIP: ${CI_COMMIT_REF_NAME}\",
