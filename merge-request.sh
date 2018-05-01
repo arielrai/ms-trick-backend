@@ -17,8 +17,8 @@ TARGET_BRANCH=`curl --silent "${HOST}${CI_PROJECT_ID}" --header "PRIVATE-TOKEN:$
 # been closed
 BODY="{
     \"id\": ${CI_PROJECT_ID},
-    \"source_branch\": \"master\",
-    \"target_branch\": \"${TARGET_BRANCH}\"
+    \"source_branch\": \"ms-trick-development\",
+    \"target_branch\": \"master\"
     \"remove_source_branch\": true,
     \"title\": \"WIP: ${CI_COMMIT_REF_NAME}\",
     \"assignee_id\":\"${GITLAB_USER_ID}\"
