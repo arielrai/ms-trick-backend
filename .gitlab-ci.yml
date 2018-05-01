@@ -29,8 +29,8 @@ deploy_staging:
  - gem install dpl
  - dpl --provider=heroku --app=ms-trick-backend-staging --api-key=${HEROKU_API_KEY}
  environment:
- name: staging
- url: https://ms-trick-backend-staging.herokuapp.com/
+    name: staging
+    url: https://ms-trick-backend-staging.herokuapp.com/
  only:
  - master
  tags:
