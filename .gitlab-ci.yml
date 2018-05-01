@@ -27,7 +27,7 @@ deploy_staging:
  - apt-get update -qy
  - apt-get install -y ruby-dev
  - gem install dpl
- - dpl --provider=heroku --app=ms-trick-backend-staging --api-key=$HEROKU_API_KEY
+ - dpl --provider=heroku --app=ms-trick-backend-staging --api-key=${HEROKU_API_KEY}
  environment:
  name: staging
  url: https://ms-trick-backend-staging.herokuapp.com/
