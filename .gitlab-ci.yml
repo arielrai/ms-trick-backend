@@ -5,7 +5,6 @@ cache:
 stages:
  - build
  - deploy
- - openMr
 
 build:
  stage: build
@@ -27,17 +26,6 @@ deploy_staging:
     name: staging
     url: https://ms-trick-backend-staging.herokuapp.com/
   only:
-    - ms-trick-backend
+ - ms-trick-backend
  tags:
  - docker
- 
-Open Merge Request:
-  image: tmaier/gitlab-auto-merge-request:1
-  before_script: [] # We do not need any setup work, let's remove the global one (if any)
-  variables:
-    GIT_STRATEGY: none # We do not need a clone of the GIT repository to create a Merge Request
-  stage: openMr
-  only:
-    - ms-trick-backend
-  script:
-    - merge-request.sh # The name of the script
