@@ -31,7 +31,7 @@ deploy_staging:
  tags:
  - docker
  
- open_merge_request:
+Open Merge Request:
   image: tmaier/gitlab-auto-merge-request:1
   before_script: [] # We do not need any setup work, let's remove the global one (if any)
   variables:
