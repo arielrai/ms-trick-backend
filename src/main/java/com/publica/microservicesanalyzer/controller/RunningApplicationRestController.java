@@ -25,7 +25,8 @@ import com.publica.microservicesanalyzer.pojo.ThirdPartyRequest;
 public class RunningApplicationRestController {
 
 	@Value("${eureka.server.url}") private String eurekaServerUrl;
-	@Value("${gateway.server.url}") private String gatewayServerUrl;
+//	@Value("${gateway.server.url}") 
+	private String gatewayServerUrl;
 	private RestTemplate restTemplate;
 
 	public RestTemplate getRestTemplate() {
