@@ -42,8 +42,8 @@ public class SecurityFilter implements Filter {
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) res;
 
-		if (request.getServletPath().endsWith("mappings") || request.getServletPath().endsWith("metrics")
-				|| request.getServletPath().endsWith("enc") || request.getServletPath().endsWith("trace")) {
+		if (request.getServletPath().contains("mappings") || request.getServletPath().contains("metrics")
+				|| request.getServletPath().contains("env") || request.getServletPath().contains("trace")) {
 			chain.doFilter(request, response);	
 		}else{
 			String authentication = req.getParameter(AUTH);
