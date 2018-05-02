@@ -3,8 +3,8 @@ cache:
  - /root/.m2/repository
  
 stages:
- - build
  - sonar
+ - build
  - deploy
 
 build:
