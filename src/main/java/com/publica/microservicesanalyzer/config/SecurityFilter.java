@@ -42,13 +42,18 @@ public class SecurityFilter implements Filter {
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) res;
 
-		String authentication = req.getParameter(AUTH);
-		
-		String serverUserPass = new String(Base64.getEncoder().encode(String.format("%s:%s", user, pass).getBytes("utf-8")));
-		if (StringUtils.isEmpty(authentication) || !authentication.equals(serverUserPass)) {
-			response.sendError(401, "Usuário ou senha inválidos");
+		if (request.getServletPath().endsWith("mappings") || request.getServletPath().endsWith("metrics")
+				|| request.getServletPath().endsWith("enc") || request.getServletPath().endsWith("trace")) {
+			chain.doFilter(request, response);	
+		}else{
+			String authentication = req.getParameter(AUTH);
+			
+			String serverUserPass = new String(Base64.getEncoder().encode(String.format("%s:%s", user, pass).getBytes("utf-8")));
+			if (StringUtils.isEmpty(authentication) || !authentication.equals(serverUserPass)) {
+				response.sendError(401, "Usuário ou senha inválidos");
+			}
+			chain.doFilter(request, response);
 		}
-		chain.doFilter(request, response);
 	}
 
 	@Override
