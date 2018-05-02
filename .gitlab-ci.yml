@@ -4,8 +4,8 @@ cache:
  
 stages:
  - build
- - sonar
  - deploy
+ - sonar
 
 build:
  stage: build
@@ -19,10 +19,7 @@ sonar:
  stage: sonar
  image: maven:3.3.9-jdk-8
  script:
- - mvn sonar:sonar \
-  -Dsonar.organization=arielrai-github \
-  -Dsonar.host.url=https://sonarcloud.io \
-  -Dsonar.login=c4e1bcb7c923c4072a01cf731fbcc8885aa2ab32
+ - mvn clean package sonar:sonar -Dsonar.organization=arielrai-github -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=c4e1bcb7c923c4072a01cf731fbcc8885aa2ab32 -Dsonar.java.binaries=target/classes/**
  tags:
  - docker
  
@@ -38,6 +35,38 @@ deploy_staging:
     name: staging
     url: https://ms-trick-backend-staging.herokuapp.com/
  except:
-    - master
+   - master
  tags:
- - docker
+   - docker
+ 
+deploy_prod_1:
+ stage: deploy
+ image: ruby:2.3
+ script:
+ - apt-get update -qy
+ - apt-get install -y ruby-dev
+ - gem install dpl
+ - dpl --provider=heroku --app=ms-trick-1 --api-key=$HEROKU_API_KEY
+ environment:
+    name: production
+    url: https://ms-trick-1.herokuapp.com/
+ only:
+   - master
+ tags:
+   - docker
+ 
+deploy_prod_2:
+ stage: deploy
+ image: ruby:2.3
+ script:
+ - apt-get update -qy
+ - apt-get install -y ruby-dev
+ - gem install dpl
+ - dpl --provider=heroku --app=ms-trick-2 --api-key=$HEROKU_API_KEY
+ environment:
+    name: staging
+    url: https://ms-trick-2.herokuapp.com/
+ only:
+   - master
+ tags:
+   - docker
