@@ -3,8 +3,8 @@ cache:
  - /root/.m2/repository
  
 stages:
- - sonar
  - build
+ - sonar
  - deploy
 
 build:
@@ -19,7 +19,7 @@ sonar:
  stage: sonar
  image: maven:3.3.9-jdk-8
  script:
- - mvn clean package sonar:sonar -Dsonar.organization=arielrai-github -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=c4e1bcb7c923c4072a01cf731fbcc8885aa2ab32 -Dsonar.java.binaries=target/classes/**
+ - mvn sonar:sonar -Dsonar.organization=arielrai-github -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=c4e1bcb7c923c4072a01cf731fbcc8885aa2ab32 -Dsonar.java.binaries=target/classes/**
  tags:
  - docker
  
