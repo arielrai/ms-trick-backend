@@ -4,14 +4,25 @@ cache:
  
 stages:
  - build
+ - sonar
  - deploy
- - openMr
 
 build:
  stage: build
  image: maven:3.3.9-jdk-8
  script:
  - mvn clean package
+ tags:
+ - docker
+ 
+sonar:
+ stage: sonar
+ image: maven:3.3.9-jdk-8
+ script:
+ - mvn sonar:sonar \
+  -Dsonar.organization=arielrai-github \
+  -Dsonar.host.url=https://sonarcloud.io \
+  -Dsonar.login=c4e1bcb7c923c4072a01cf731fbcc8885aa2ab32
  tags:
  - docker
  
@@ -30,14 +41,3 @@ deploy_staging:
     - master
  tags:
  - docker
-
-Open Merge Request:
-  image: tmaier/gitlab-auto-merge-request:1
-  before_script: [] # We do not need any setup work, let's remove the global one (if any)
-  variables:
-    GIT_STRATEGY: none # We do not need a clone of the GIT repository to create a Merge Request
-  stage: openMr
-  except:
-    - master
-  script:
-    - merge-request.sh # The name of the script
