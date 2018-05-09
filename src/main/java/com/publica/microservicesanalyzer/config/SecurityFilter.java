@@ -24,7 +24,7 @@ import org.springframework.util.StringUtils;
  *
  */
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
+//@Order(Ordered.LOWEST_PRECEDENCE)
 public class SecurityFilter implements Filter {
 
 	private static final String AUTH = "authentication";
