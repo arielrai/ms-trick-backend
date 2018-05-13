@@ -138,8 +138,7 @@ public class JsonService {
 		if (StringUtils.isEmpty(json)) {
 			return null;
 		}
-		try {
-			JsonParser jp = mapper.getFactory().createParser(json);
+		try (JsonParser jp = mapper.getFactory().createParser(json)){
 			Object readValue = mapper.readValue(jp, mapper.constructType(clazz));
 			return clazz.cast(readValue);
 		} catch (Exception e) {
