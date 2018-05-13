@@ -54,46 +54,58 @@ public class SchedulerService {
 	}
 
 	public void runNotifications() {
-		schedulePool.scheduleAtFixedRate(() -> {
-			try {
-
-				EurekaApps eurekaApps = getRestTemplate().getForObject(String.format("%s/eureka/apps", eurekaServerUrl),
-						EurekaApps.class);
-				for (Application app : eurekaApps.getApplications().getApplication()) {
-					for (AbstractApplicationNotificationModel appNotifier : appsNotificatiors) {
-						NotificationConfiguration notificationConfiguration = notificationConfigurationRepo.findOne(appNotifier.getClass().getName());
-						if (notificationConfiguration.isNotificationOn()) {
-							if (appNotifier.isNotify(app, app.getName())) {
-								notificationService.sendNotification(app.getName(),
-										appNotifier.getMessage(app, null, app.getName()));
+		if (isNotify()) {
+			schedulePool.scheduleAtFixedRate(() -> {
+				try {
+					
+					EurekaApps eurekaApps = getRestTemplate().getForObject(String.format("%s/eureka/apps", eurekaServerUrl),
+							EurekaApps.class);
+					for (Application app : eurekaApps.getApplications().getApplication()) {
+						for (AbstractApplicationNotificationModel appNotifier : appsNotificatiors) {
+							NotificationConfiguration notificationConfiguration = notificationConfigurationRepo.findOne(appNotifier.getClass().getName());
+							if (notificationConfiguration.isNotificationOn()) {
+								if (appNotifier.isNotify(app, app.getName())) {
+									notificationService.sendNotification(app.getName(),
+											appNotifier.getMessage(app, null, app.getName()));
+								}
 							}
 						}
-					}
-					for (Instance instance : app.getInstance()) {
-						String metrics = getRestTemplate().getForObject(
-								instance.getHomePageUrl().substring(0, instance.getHomePageUrl().lastIndexOf(":")) + "/metrics",
-								String.class);
-						for (AbstractMetricsNotificationModel metricNotifier : metricsNotificatiors) {
-							NotificationConfiguration notificationConfiguration = notificationConfigurationRepo.findOne(metricNotifier.getClass().getName());
-							if (notificationConfiguration.isNotificationOn()) {
-								try {
-									JSONObject jsonObject;
-									jsonObject = new JSONObject(metrics);
-									if (metricNotifier.isNotify(jsonObject, app.getName())) {
-										notificationService.sendNotification(app.getName(), metricNotifier.getMessage(
-												jsonObject, app.getName(), String.valueOf(instance.getInstanceId())));
+						for (Instance instance : app.getInstance()) {
+							String metrics = getRestTemplate().getForObject(
+									instance.getHomePageUrl().substring(0, instance.getHomePageUrl().lastIndexOf(":")) + "/metrics",
+									String.class);
+							for (AbstractMetricsNotificationModel metricNotifier : metricsNotificatiors) {
+								NotificationConfiguration notificationConfiguration = notificationConfigurationRepo.findOne(metricNotifier.getClass().getName());
+								if (notificationConfiguration.isNotificationOn()) {
+									try {
+										JSONObject jsonObject;
+										jsonObject = new JSONObject(metrics);
+										if (metricNotifier.isNotify(jsonObject, app.getName())) {
+											notificationService.sendNotification(app.getName(), metricNotifier.getMessage(
+													jsonObject, app.getName(), String.valueOf(instance.getInstanceId())));
+										}
+									} catch (JSONException e) {
+										e.printStackTrace();
 									}
-								} catch (JSONException e) {
-									e.printStackTrace();
 								}
 							}
 						}
 					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}, 0, minutes, TimeUnit.MINUTES);
+			}, 0, minutes, TimeUnit.MINUTES);
+		}
+	}
+	
 
+	@Value("notify") private String notify;
+	
+	public boolean isNotify() {
+		if (notify == null) {
+			return true;
+		} else {
+			return Boolean.valueOf(notify);
+		}
 	}
 }
