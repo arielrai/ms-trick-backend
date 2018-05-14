@@ -5,8 +5,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.spi.LoggerFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ public class SchedulerService {
 	private ScheduledExecutorService schedulePool = Executors
 			.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() - 1);
 
+	private static final Logger logger = org.slf4j.LoggerFactory.getLogger(SchedulerService.class);
 	@Value("${eureka.server.url}")
 	private String eurekaServerUrl;
 	@Value("${scheduler.minutes}")
@@ -99,7 +102,7 @@ public class SchedulerService {
 	}
 	
 
-	@Value("notify") private String notify;
+	@Value("${notify}") private String notify;
 	
 	public boolean isNotify() {
 		if (notify == null) {
