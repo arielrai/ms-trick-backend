@@ -15,8 +15,9 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.publica.microservicesanalyzer.model.Notification;
@@ -40,6 +41,7 @@ public class NotificationService {
 	private NotificationRepository notificationRepo;
 	@Autowired
 	private NotificationConfigurationRepository notificationConfigurationRepo;
+	private Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
 	@Transactional(rollbackOn = Throwable.class)
 	public void saveNotificationConfiguration(String token, boolean on) {
@@ -88,7 +90,7 @@ public class NotificationService {
 				System.out.println(response);
 				System.out.println(message);
 			} catch (JSONException | IOException e) {
-				e.printStackTrace();
+				logger.error("Parsing", e);
 			}
 		}
 	}
