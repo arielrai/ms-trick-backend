@@ -18,6 +18,7 @@ import com.publica.microservicesanalyzer.mapping.app.Application;
 import com.publica.microservicesanalyzer.mapping.app.EurekaApps;
 import com.publica.microservicesanalyzer.mapping.app.Instance;
 import com.publica.microservicesanalyzer.model.NotificationConfiguration;
+import com.publica.microservicesanalyzer.notification.configurer.SystemLoadAverageNotifier;
 import com.publica.microservicesanalyzer.notification.model.AbstractApplicationNotificationModel;
 import com.publica.microservicesanalyzer.notification.model.AbstractMetricsNotificationModel;
 import com.publica.microservicesanalyzer.repo.NotificationConfigurationRepository;
@@ -30,7 +31,7 @@ import com.publica.microservicesanalyzer.repo.NotificationConfigurationRepositor
  */
 @Service
 public class SchedulerService {
-
+	
 	private ScheduledExecutorService schedulePool = Executors
 			.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() - 1);
 
@@ -88,14 +89,14 @@ public class SchedulerService {
 													jsonObject, app.getName(), String.valueOf(instance.getInstanceId())));
 										}
 									} catch (JSONException e) {
-										e.printStackTrace();
+										logger.error("Parsing", e);
 									}
 								}
 							}
 						}
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error("Parsing", e);
 				}
 			}, 0, minutes, TimeUnit.MINUTES);
 		}

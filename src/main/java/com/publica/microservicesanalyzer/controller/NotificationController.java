@@ -14,6 +14,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -42,6 +44,7 @@ import com.publica.microservicesanalyzer.service.NotificationService;
 @RequestMapping("/notification")
 public class NotificationController {
 	
+	private Logger logger = LoggerFactory.getLogger(NotificationController.class);
 	@Autowired private NotificationService notificationService;
 	@Autowired private NotificationConfigurationRepository notificationConfigRepo;
 	@Autowired private NotificationRepository notificationRepo;
@@ -88,7 +91,7 @@ public class NotificationController {
 			System.out.println(response);
 			System.out.println(message);
 		} catch (JSONException | IOException e) {
-			e.printStackTrace();
+			logger.error("Parsing", e);
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
